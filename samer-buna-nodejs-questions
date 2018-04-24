@@ -1,0 +1,7 @@
+1.) What is the relationship between Node.js and V8? Can Node work without V8?
+---> The relationship between V8 and Node.js is that V8 is an engine or the virtual machine for Node. In fact V8 is a 
+single threaded architecture Node use V8 via C++ API. It parses your JS code in order to run.
+---> Node actually will not work without V8 why because V8 is the most important player in Node archicture. V8 actually provides
+functionalities in the operating system such files, binary data etc.
+2.) How come when you declare a global variable in any Node.js file it’s not really global to all modules?
+---> If you declare a variable in globals object its really available into other modules. 

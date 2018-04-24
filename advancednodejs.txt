@@ -1,0 +1,219 @@
+1.) NodeJS
+---> Server side framework
+---> Mobiles and iOT
+---> Desktop applications
+---> Millions of users
+2.) Why NodeJS is popular so popular
+	1.) Full-stack JAVASCRIPT developer
+	2) Non blocking event driven
+	3.) VM single threaded
+3.) (Node != JS) The two most important player in Node's architecture are V8 and libuv.
+---> Node default VM is V8.
+---> V8 features groups = shipping, staged, in progress
+Shipping = are on by default,
+Staged and In progress = are not but we can use CLI to enable them
+---> Node is more than wrapper for V8, it provides APIs for working with OS, files, binary data.
+---> Node uses V8 via V8 c++ API
+---> V8 parses your JS in order to run
+---> Node API has its own core modules which is the JS
+---> Node API eventually executes C++ code using V8 object and function templates.
+---> Node also handles the waiting for async events for us using libuv.
+---> When node is done waiting I/O operations or timers it usually has callback functions to invoke
+---> After that node will pass it to V8 then V8 processed it when its done with the code in the
+call back the control is passed back to Node.
+---> V8 is single threaded
+---> libuv is a C library developed for Node. It used to abstract the non block I/O 
+operations to consistent interface across many OS. It handles TCP/UDP sockets, child processes and others.
+---> libuv handle thread pool in the OS and also provides Node with the event loop
+---> Node few more dependencies 
+a.) http-parser  = small c library for parsing HTTP messages. It works for both request and response. It's designed to have a very small pre-request memory footprint.
+b.) c-ares -is what enables performing asynchronous DNS queries 
+c.) OpenSSL - is used mostly in the TLS and crypto modules. It provides implementations for many cryptographic functions.
+d.) zlib - is used for its fast async and streaming compression and decompression interfaces.
+
+4.) (Node's CLI and Repl)
+---> Running the node command without args starts the REPL (Read, Eval, Print, Loop)
+---> tab + tab autocomplete for expression
+5.) Global object is the only global in node
+-Buffer = is essentially a chunk of memory and binary data. Its a lower level data structure to represent a 
+sequence of binary data.Once a buffer is allocated it cannot be resized.
+- Process - is the current process of your node.
+6.) Require module - In NodeJS module is used
+7.) JSON and C++ Addons
+	---> First thing node to resolve are ff extensions.
+		a.) try something.JS
+		b.) try something.JSON
+		c.) try something.node (C++ addons)
+
+		If node can't find JS and JSON extension file node would interpret the file as compiled 
+		addon module
+		Here are the steps to achieve it
+		1.) Create folder for the add on module
+		2.) Create gyp file and add the this following as consistent	
+			{
+				"targets": [
+					{
+					"target_name": "addon",
+					"sources": [ "hello.cc" ]
+					}
+				]
+			}
+		What are these ? It actually tells the module to compile and what target name to use 
+			for the compiled module. Then to compile we need the node-gyp package install it 
+			using npm i -g node-gyp
+		3.) Next in the directory run the following command "node-gyp configure" it will create 
+			the make files under the build directory. Make sure you are using Python2.x as node-gyp 
+			requirements.
+		4.) node-gyp build to build addon.node file nd it can be found build/release
+		5.) last is copy the build file into node_modules
+		6.) Import the module by requiring it.
+		---> To check the requireing ext run node command as repl then run require.extensions
+				The require JS file is being "compiled" in node
+				The require JSON file is being "parsed" in node
+				The require node file is being "process.dlopen"
+
+8.) Wrapping and caching modules
+	Wrapping
+	---> Node has a wrapping functions that consists of arguments, "exports", "require", "module", "__filename", "__dirname"
+	---> You can see it in node repl by running the commnad "requre("module").wrapper"
+	---> An also by logging console.log(arguments)
+	---> You can see it as well as error 
+	Caching
+	---> Modules caching , node caches the first call and does not load the file on the second call.
+	---> We can see the cache usng require.cache
+	---> We can delete it by using delete require.cache["PATH"]
+9.) Concurrency Model and Event loop
+	---> One important thing to hanlde nodeJS is the Concurrency model including the handler of multiple callbacks. This is the non-block 
+	nature of NodeJS
+	---> The nodeJS event model is libuv, Ruby event machine, Python twisted
+	---> In node this event model is organize what is known as event loop.
+	---> Slow I/O operations are handled with events and callbacks so that they don't block the main single-threaded execution run time.
+	---> Take note that everythig in node depdends on this concept so it's extremely important that I fully understand it.
+10.) What is I/O anyway ?
+	---> I/O is used to label a communication between a process in computer CPU and aythin external to that CPU including memory, disk 
+		network and even another process. It communicates via signals or message. Those input signal is received by the process.
+	---> But in Node architecture the term I/O is usually used to reference accessing disk and network resources which is the most time
+		expensive part of all operations.
+	---> Node's event loop is designed around the major fact that the largest waste in computer programming comes from waiting on 
+		such I/O operations to complete. We can handle this operations in many ways. The easiest way is Synchronous and fork().
+		The most popular method for handling these request is "threads". By we can handle new thread to handle each request.	
+		Threaded programming can get very complicated when threads start accessing shared resources. EG Apache(Multithreaded) it 
+		create threads for each request. To eliminate the complex accessing shared thread resources Node is single threaded framework 
+		it use an "event loop" to handle requests for slow I/O operations without  blocking the main execution runtime.
+	11.) Event loop
+	---> The entity that handles external events and converts them into call back invocations.
+	---> A loop that picks events from the event queue and pushes their callbacks to the call stack
+	---> event loop monitors call stack and call back queue
+	12.) Call stack 
+	---> The call stack data structure is FIFO
+	13.) SetImmediate and process.nextTick
+	---> process.nextTick API  is similar to setImmediate and not technically
+	part of the event loop and it does not care about the phases of the event loop.
+	Node processes the callbacks registered with the nextTick after the "current operation completes and before event loop continues."
+11.) Callbacks, Promises and Async / await
+	---> Instead of using callbacks in naive way for asynchronous programming use JS native promises and async/ await features. The 
+		good side of using this features are code readability and maintainable.
+12.) EventEmitter 
+	---> The event emitter is module that facilitates communication between objcets in Node.
+	---> EventEmitter is at the core of Node asynchronous event-driven architecture.
+	---> Many Node module's are inherits EventEmitter.
+	---> Event emitter has two main features
+		1.) Emitting named events.
+		2.) Registering listener functions 
+	---> 5 steps on how to create EventEmitter
+		1.) Import EventEmitter require("events");
+		2.) Create a class and extend the EventEmitter
+		3.) Create objects from that class and initiliasie
+		4.) From that object emit events so that we can listen to that event with a registered function.
+		5.) From that object add listener in the event with registered listener function
+13.) HTTPS - is working over TSL/SSL
+
+14.) Streams - sequence of data that is being moved from one to another in over time.
+	---> Collections of data that might not be available all at once and dont' have to fit 
+	in memory.
+	---> If you are working on big data file you need to use node streams
+	Types of streams
+	a.) Readable streams fs.createReadStream
+	b.) Writable streams fs.createWriteStream
+	c.) Duplex streams net.socket
+	e.) Transform streams zlib.createGzip // compress data
+	---> All streasms are instances or objects of EventEmitters. They all emit 
+	events that we can you use to write or read data from them.
+	---> Two difference from stream 
+	1.) Implementing - usually who use the stream module. For consuming all we need to do.(require("streams"))
+
+	2.) Consuming - The one using the stream module. (piping/events)
+15.) Cluster and child process
+	---> Single threaded a non - blocking performance is quite good. Buy
+	---> One process in one CPU is not going to be enough to handle an increasing workload application.
+	---> The fact that Node runs in single thread does not mean that we can't take advantage of multiple 
+	processes and of course multiple machines as well.
+	---> Basically using multiple processes is the only to scale a Node.js application.
+	---> Node.JS is designed for building distributed applications with many nodes.
+	Scalability
+	1.) Workdload is the most popular reason we scale our applications. But it's not the only one 
+	reason. We also scale our app to increase the availability and tolerance to failure.
+	Scalability strategies
+	1.) Cloning - easiest thing to do by cloning the resources and assigned each workload the cloned resources so that everything is balance
+	2.) Decomposing - based on functionality and services we can decompose. In fact this strategy is commonly associated with term of 
+	microservicem where micro indicates that those services should be as small as possible.
+	3.) Splitting - third strategy is splitting resources and serve as multiple instances where each instance is responsible for 
+	only a portion of the application's data. This strategy is often named horizontal partitioning, or shading in databases.
+	Data partitioning requries a lookup step before each operation to determine which instance of the application to use.
+	For example we want to partition our users based on their country or language.
+	---> Child process module enables us to access OS functionality by running system command inside 
+	child process.
+	---> Four different ways to create child process in node 
+	1.) spawn()
+	2.) fork()
+	3.) exec()
+	4.) execFile()
+
+	In NodeJSProcess 
+		stdin is ReadableStream
+		stdout is WritableStream
+		stderr is WritableStream
+	In spawn child_process
+		child.stdout is ReadableStream
+		child.stderr is ReadableStream
+		child.stdin is Writable
+16.) Cluster module - can be used to enable load balancing over an environment multiple CPU
+cores.
+	---> Fork - In computing, particularly in the context of the Unix operating system and its workalikes, fork is an operation whereby a process creates a copy of itself. It is usually a system call, implemented in the kernel. 
+	---> In addition the Cluster module is Node's helper for us to implement cloning scalability stragey, but only on one machine.
+	But if you more resources like machines well cluster module implementation is much faster and quicker for cloning scalability strategy.
+	---> Cluster module increase the server availability and faul-tolerance.
+	in Cluster architecture
+	1.) Master process is the one decides which worker process should handle request. In fact master process job is so easy because 
+	it actually just uses a round-robin algorithm to pick a worker process. This is enabled by default in all platforms except Windows.
+	The R-R algorithm distributes the load evenly across all available processes on a rotational basis. First process to first worker 
+	then second process send to second worker.
+
+17.) Availability and Zero-downtime restarts
+	---> One of the problems in running a single instace of a Node app vs many is that 
+	when that instance crashes it has to be restarted and there will be a downtime even if the 
+	proess is automated to restart the app. This also applies to the case when the server 
+	has to be restarted and deploy new code.
+
+	-pm2(process monitors)
+	---> To monitor NodeJS health
+	---> http://pm2.keymetrics.io/
+
+18.) Shared state and sticky load balancing
+	---> When we load balance a Node application we lose some features
+	---> only sutable for single process
+	---> In cluster setup we can no longer cache things in memory, because every 
+	worker process has its own memory space if we cache something in ones worker memory 
+	other workers will not hve access to it. 
+	---> If we need to cache things with a cluster setup, we have to use separate entity 
+	and read/write to that entity API from all workers. This entity can be database server 
+	or if you want to use memory cache like Redis
+	---> Other than caching, when we're running on cluster, stateful 
+	communication in general becomes a problem. The most example for this 
+	is authenticating users 
+	Sticky load balancing  (CUSTOM SCRIPT)
+	--> the idea is simple. When a user authenticates with a worker instance. we keep a record 
+	to that relation on the load balancer level.  IF this user send another 
+	request since this user has already record for that worker 
+	we will send that  request in that load balancer 
+	---> Node cluster module does not use sticky load balancing 
